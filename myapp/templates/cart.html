@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+
+{% block title %}eShop - Coșul meu{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="text-center mb-4">Coșul meu de cumpărături</h1>
+    </div>
+</div>
+
+{% if cart_items %}
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header bg-transparent">
+                    <h5 class="mb-0">Produse selectate ({{ cart_items|length }})</h5>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-hover mb-0">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Produs</th>
+                                <th class="text-center">Cantitate</th>
+                                <th class="text-right">Preț unitar</th>
+                                <th class="text-right">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in cart_items %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="mr-3" style="width: 50px; height: 50px; background-color: #f8f9fa; border-radius: 4px; display: flex; align-items: center; justify-content: center;">
+                                                <i class="fas fa-box text-muted"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-0">{{ item.product.name }}</h6>
+                                                <small class="text-muted">{{ item.product.category }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center align-middle">
+                                        <div class="d-flex justify-content-center align-items-center">
+                                            <button class="btn btn-sm btn-light decrease-quantity" data-product-id="{{ item.product.id }}">-</button>
+                                            <span class="mx-2 quantity">{{ item.quantity }}</span>
+                                            <button class="btn btn-sm btn-light increase-quantity" data-product-id="{{ item.product.id }}">+</button>
+                                        </div>
+                                    </td>
+                                    <td class="text-right align-middle">{{ item.product.price }} RON</td>
+                                    <td class="text-right align-middle total-price">{{ item.total_price }} RON</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header bg-transparent">
+                    <h5 class="mb-0">Sumar comandă</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Subtotal</span>
+                        <span id="subtotal">{{ total_price }} RON</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between mb-4">
+                        <strong>Total de plată</strong>
+                        <strong class="text-primary" id="total">{{ total_price }} RON</strong>
+                    </div>
+                    
+                    <form action="{% url 'checkout' %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary btn-block py-2">
+                            <i class="fas fa-check mr-2"></i> Finalizează comanda
+                        </button>
+                    </form>
+                    
+                    <a href="{% url 'home' %}" class="btn btn-outline-secondary btn-block mt-3">
+                        <i class="fas fa-arrow-left mr-2"></i> Continuă cumpărăturile
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% else %}
+    <div class="text-center py-5">
+        <div class="mb-4">
+            <i class="fas fa-shopping-cart fa-5x text-muted"></i>
+        </div>
+        <h3>Coșul tău este gol</h3>
+        <p class="text-muted">Nu ai adăugat niciun produs în coșul de cumpărături.</p>
+        <a href="{% url 'home' %}" class="btn btn-primary mt-3">
+            <i class="fas fa-shopping-bag mr-2"></i> Începe cumpărăturile
+        </a>
+    </div>
+{% endif %}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.increase-quantity').forEach(button => {
+            button.addEventListener('click', function() {
+                const productId = this.getAttribute('data-product-id');
+                fetch(`/increase_quantity/${productId}/`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const quantityElement = this.parentElement.querySelector('.quantity');
+                        const totalPriceElement = this.parentElement.parentElement.nextElementSibling.nextElementSibling;
+                        quantityElement.textContent = data.quantity;
+                        totalPriceElement.textContent = `${data.total_price.toFixed(2)} RON`;
+                        updateTotal();
+                    });
+            });
+        });
+
+        document.querySelectorAll('.decrease-quantity').forEach(button => {
+            button.addEventListener('click', function() {
+                const productId = this.getAttribute('data-product-id');
+                fetch(`/decrease_quantity/${productId}/`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const quantityElement = this.parentElement.querySelector('.quantity');
+                        const totalPriceElement = this.parentElement.parentElement.nextElementSibling.nextElementSibling;
+                        quantityElement.textContent = data.quantity;
+                        totalPriceElement.textContent = `${data.total_price.toFixed(2)} RON`;
+                        updateTotal();
+                    });
+            });
+        });
+
+        function updateTotal() {
+            let subtotal = 0;
+            document.querySelectorAll('.total-price').forEach(element => {
+                subtotal += parseFloat(element.textContent);
+            });
+            document.getElementById('subtotal').textContent = `${subtotal.toFixed(2)} RON`;
+            document.getElementById('total').textContent = `${subtotal.toFixed(2)} RON`;
+        }
+    });
+</script>
+{% endblock %}

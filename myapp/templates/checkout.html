@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}eShop - Comandă finalizată{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="text-center py-5">
+            <div class="success-icon mb-4">
+                <div class="circle">
+                    <i class="fas fa-check fa-3x"></i>
+                </div>
+            </div>
+            <h1 class="mb-3">Mulțumim pentru comandă!</h1>
+            <p class="text-muted mb-4">Comanda dumneavoastră a fost plasată cu succes și este în curs de procesare.</p>
+            
+            <div class="order-details card mb-4">
+                <div class="card-body">
+                    <h5 class="mb-3">Detalii comandă</h5>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Număr comandă:</span>
+                        <span>#ORD-{{ request.session.session_key|slice:":8"|upper }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Data:</span>
+                        <span>{{ now|date:"d.m.Y" }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">Status:</span>
+                        <span class="badge badge-pill badge-success">Procesare</span>
+                    </div>
+                </div>
+            </div>
+            
+            <a href="{% url 'home' %}" class="btn btn-primary">
+                <i class="fas fa-home mr-2"></i> Înapoi la pagina principală
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .success-icon .circle {
+        width: 100px;
+        height: 100px;
+        background-color: #4fc3a1;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        color: white;
+    }
+    
+    .order-details {
+        background-color: #f8f9fa;
+        border: none;
+        border-radius: 8px;
+    }
+    
+    .badge-success {
+        background-color: #4fc3a1;
+    }
+</style>
+{% endblock %}

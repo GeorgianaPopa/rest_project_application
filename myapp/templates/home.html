@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}eShop - Produse{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="text-center mb-4">Produsele noastre</h1>
+        <p class="text-center text-muted">Descoperă gama noastră completă de produse de calitate</p>
+    </div>
+</div>
+
+{% for category, products in products_by_category.items %}
+    <div class="category-section mb-5">
+        <div class="category-header d-flex align-items-center mb-3">
+            <h2 class="mb-0">{{ category }}</h2>
+            <hr class="flex-grow-1 ml-3">
+        </div>
+        <div class="row">
+            {% for product in products %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 product-card">
+                        <div class="card-header bg-transparent border-0 text-center">
+                            {% if product.name == "Crema hidratanta" %}
+                                <img src="{% static 'images/Cutie-crema-hidratanta.jpg' %}" alt="{{ product.name }}" class="img-fluid" style="height: 180px; object-fit: cover;">
+                            {% elif product.name == "Sampon Revitalizant" %}
+                                <img src="{% static 'images/images (2).jpeg' %}" alt="{{ product.name }}" class="img-fluid" style="height: 180px; object-fit: cover;">
+                            {% elif product.name == "Balsam de buze" %}
+                                <img src="{% static 'images/download.jpeg' %}" alt="{{ product.name }}" class="img-fluid" style="height: 180px; object-fit: cover;">
+                            {% else %}
+                                <div class="product-image-placeholder bg-light d-flex align-items-center justify-content-center" style="height: 180px;">
+                                    <i class="fas fa-box fa-3x text-muted"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">{{ product.name }}</h5>
+                            <p class="card-text text-muted">{{ product.description }}</p>
+                        </div>
+                        <div class="card-footer bg-transparent border-top-0">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="text-primary mb-0">{{ product.price }} RON</h5>
+                                <a href="{% url 'add_to_cart' product.id %}" class="btn btn-primary">
+                                    <i class="fas fa-cart-plus"></i> Adaugă în coș
+                                </a>
+                            </div>
+                            <a href="#" class="btn btn-link btn-sm text-muted mt-2">
+                                <i class="fas fa-file-alt"></i> Vezi specificații
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% empty %}
+    <div class="alert alert-info">
+        Nu există produse disponibile momentan.
+    </div>
+{% endfor %}
+
+<style>
+    .category-header hr {
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+    }
+    
+    .product-card {
+        transition: transform 0.3s, box-shadow 0.3s;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+    }
+    
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .category-section {
+        padding-bottom: 15px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .category-section:last-child {
+        border-bottom: none;
+    }
+    
+    .product-image-placeholder {
+        border-radius: 6px;
+    }
+</style>
+{% endblock %}
