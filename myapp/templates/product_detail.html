@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ product.name }} - eShop{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-6">
+            {% if product.name == "Crema hidratanta" %}
+                <img src="{% static 'images/Cutie-crema-hidratanta.jpg' %}" alt="{{ product.name }}" class="img-fluid">
+            {% elif product.name == "Sampon Revitalizant" %}
+                <img src="{% static 'images/images (2).jpeg' %}" alt="{{ product.name }}" class="img-fluid">
+            {% elif product.name == "Balsam de buze" %}
+                <img src="{% static 'images/download.jpeg' %}" alt="{{ product.name }}" class="img-fluid">
+            {% else %}
+                <img src="{{ product.image_url }}" alt="{{ product.name }}" class="img-fluid">
+            {% endif %}
+        </div>
+        <div class="col-md-6">
+            <h1>{{ product.name }}</h1>
+            <p>{{ product.description }}</p>
+            <h3>{{ product.price }} RON</h3>
+            <a href="{% url 'add_to_cart' product.id %}" class="btn btn-primary">
+                <i class="fas fa-cart-plus"></i> Adaugă în coș
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

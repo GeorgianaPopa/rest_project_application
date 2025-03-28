@@ -5,25 +5,45 @@ from .models import Product, Wishlist, Cart, Order
 from .serializers import ProductSerializer, WishlistSerializer, CartSerializer, OrderSerializer 
 from .permissions import IsAdminUser 
 from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
 
 # user
 # user@abc.com
 # parola1234
 
 def home(request):
-    products = Product.objects.all()
+    query = request.GET.get('q')
+    if query:
+        products = Product.objects.filter(name__icontains=query)
+    else:
+        products = Product.objects.all()
+    
     products_by_category = {}
-
     for product in products:
         if product.category not in products_by_category:
             products_by_category[product.category] = []
         products_by_category[product.category].append(product)
 
     context = {
-        'products_by_category': products_by_category
+        'products_by_category': products_by_category,
+        'query': query,
     }
     return render(request, 'home.html', context)
 
+def predictive_search(request):
+    query = request.GET.get('q')
+    if query:
+        products = Product.objects.filter(name__icontains=query)[:5]
+        results = [{'id': product.id, 'name': product.name} for product in products]
+        return JsonResponse({'results': results})
+    return JsonResponse({'results': []})
+
+def product_detail(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    return render(request, 'product_detail.html', {'product': product})
+
+@login_required
 def cart_view(request):
     cart_items = Cart.objects.filter(user=request.user)
     total_price = sum(item.product.price * item.quantity for item in cart_items)
@@ -31,6 +51,7 @@ def cart_view(request):
         item.total_price = item.product.price * item.quantity
     return render(request, 'cart.html', {'cart_items': cart_items, 'total_price': total_price})
 
+@login_required
 def checkout(request):
     if request.method == 'POST':
         Cart.objects.filter(user=request.user).delete()
@@ -59,6 +80,7 @@ class CartViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return Cart.objects.filter(user=self.request.user)
     
+@login_required
 def add_to_cart(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     cart_item, created = Cart.objects.get_or_create(user=request.user, product=product)
@@ -75,6 +97,7 @@ class OrderViewSet(viewsets.ModelViewSet):
     def get_queryset(self): 
         return Order.objects.filter(user=self.request.user)
     
+@login_required
 def increase_quantity(request, product_id):
     cart_item = get_object_or_404(Cart, user=request.user, product_id=product_id)
     cart_item.quantity += 1
@@ -82,6 +105,7 @@ def increase_quantity(request, product_id):
     total_price = cart_item.quantity * cart_item.product.price
     return JsonResponse({'quantity': cart_item.quantity, 'total_price': total_price})
 
+@login_required
 def decrease_quantity(request, product_id):
     cart_item = get_object_or_404(Cart, user=request.user, product_id=product_id)
     if cart_item.quantity > 1:

@@ -19,12 +19,14 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: var(--dark-text);
             background-color: #f4f6f9;
+            line-height: 1.6;
         }
         
         .navbar {
             background-color: white !important;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             padding: 15px 0;
+            border-bottom: 1px solid #eaeaea;
         }
         
         .navbar-brand {
@@ -37,11 +39,12 @@
             color: var(--dark-text) !important;
             font-weight: 500;
             margin: 0 10px;
-            transition: color 0.3s;
+            transition: color 0.3s, transform 0.3s;
         }
         
         .nav-link:hover {
             color: var(--primary-color) !important;
+            transform: translateY(-2px);
         }
         
         .cart-icon {
@@ -61,15 +64,16 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         
         .container {
-            padding: 20px;
+            padding: 30px;
             background-color: white;
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-            margin-top: 30px;
-            margin-bottom: 30px;
+            margin-top: 40px;
+            margin-bottom: 40px;
         }
         
         .footer {
@@ -79,9 +83,15 @@
             margin-top: 40px;
         }
         
+        .footer p {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+        
         .btn-primary {
             background-color: var(--primary-color);
             border-color: var(--primary-color);
+            transition: background-color 0.3s, border-color 0.3s;
         }
         
         .btn-primary:hover {

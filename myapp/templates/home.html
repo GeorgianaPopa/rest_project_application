@@ -12,6 +12,18 @@
     </div>
 </div>
 
+<form method="GET" action="{% url 'home' %}" class="form-inline my-2 my-lg-0 search-container">
+    <input class="form-control mr-sm-2" type="search" placeholder="Caută produse" aria-label="Search" name="q" id="search-input" autocomplete="off">
+    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Caută</button>
+    <div id="suggestions" class="list-group position-absolute"></div>
+</form>
+
+{% if query %}
+    <div class="alert alert-info">
+        Rezultatele căutării pentru: <strong>{{ query }}</strong>
+    </div>
+{% endif %}
+
 {% for category, products in products_by_category.items %}
     <div class="category-section mb-5">
         <div class="category-header d-flex align-items-center mb-3">
@@ -24,13 +36,13 @@
                     <div class="card h-100 product-card">
                         <div class="card-header bg-transparent border-0 text-center">
                             {% if product.name == "Crema hidratanta" %}
-                                <img src="{% static 'images/Cutie-crema-hidratanta.jpg' %}" alt="{{ product.name }}" class="img-fluid" style="height: 180px; object-fit: cover;">
+                                <img src="{% static 'images/Cutie-crema-hidratanta.jpg' %}" alt="{{ product.name }}" class="img-fluid product-img">
                             {% elif product.name == "Sampon Revitalizant" %}
-                                <img src="{% static 'images/images (2).jpeg' %}" alt="{{ product.name }}" class="img-fluid" style="height: 180px; object-fit: cover;">
+                                <img src="{% static 'images/images (2).jpeg' %}" alt="{{ product.name }}" class="img-fluid product-img">
                             {% elif product.name == "Balsam de buze" %}
-                                <img src="{% static 'images/download.jpeg' %}" alt="{{ product.name }}" class="img-fluid" style="height: 180px; object-fit: cover;">
+                                <img src="{% static 'images/download.jpeg' %}" alt="{{ product.name }}" class="img-fluid product-img">
                             {% else %}
-                                <div class="product-image-placeholder bg-light d-flex align-items-center justify-content-center" style="height: 180px;">
+                                <div class="product-image-placeholder bg-light d-flex align-items-center justify-content-center">
                                     <i class="fas fa-box fa-3x text-muted"></i>
                                 </div>
                             {% endif %}
@@ -42,11 +54,11 @@
                         <div class="card-footer bg-transparent border-top-0">
                             <div class="d-flex justify-content-between align-items-center">
                                 <h5 class="text-primary mb-0">{{ product.price }} RON</h5>
-                                <a href="{% url 'add_to_cart' product.id %}" class="btn btn-primary">
+                                <a href="{% url 'add_to_cart' product.id %}" class="btn btn-primary add-to-cart-btn">
                                     <i class="fas fa-cart-plus"></i> Adaugă în coș
                                 </a>
                             </div>
-                            <a href="#" class="btn btn-link btn-sm text-muted mt-2">
+                            <a href="#" class="btn btn-link btn-sm view-specs-link">
                                 <i class="fas fa-file-alt"></i> Vezi specificații
                             </a>
                         </div>
@@ -62,33 +74,191 @@
 {% endfor %}
 
 <style>
-    .category-header hr {
-        border-top: 1px solid rgba(0, 0, 0, 0.1);
+    /* Fundal general cu efect gradient */
+    body {
+        background: linear-gradient(135deg, #f4f6f9, #ffffff);
     }
     
+    /* Spațiere pentru containerul principal */
+    .container {
+        margin-top: 40px;
+        margin-bottom: 40px;
+    }
+    
+    /* Formularul de căutare - centrat și cu margini generoase */
+    .search-container {
+        position: relative;
+        display: flex;
+        justify-content: center;
+        margin-bottom: 40px;
+    }
+    
+    form.form-inline input[type="search"] {
+        border-radius: 50px;
+        padding: 12px 25px;
+        border: 2px solid var(--primary-color);
+        transition: border-color 0.3s, box-shadow 0.3s;
+        width: 100%;
+        max-width: 400px;
+    }
+    
+    form.form-inline input[type="search"]:focus {
+        border-color: var(--secondary-color);
+        box-shadow: 0 0 10px rgba(22, 96, 136, 0.3);
+    }
+    
+    form.form-inline .btn-outline-success {
+        border-radius: 50px;
+        padding: 12px 30px;
+        border: 2px solid var(--primary-color);
+        transition: background-color 0.3s, border-color 0.3s;
+        margin-left: 10px;
+    }
+    
+    form.form-inline .btn-outline-success:hover {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        color: #fff;
+    }
+    
+    /* Lista de sugestii - stil curat și modern */
+    #suggestions {
+        top: 70px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90%;
+        max-width: 400px;
+        border: 1px solid #ddd;
+        border-top: none;
+        border-radius: 0 0 8px 8px;
+        box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+        background-color: #fff;
+    }
+    
+    /* Antetul categoriei - accentuat cu o linie colorată */
+    .category-header hr {
+        border-top: 2px solid var(--primary-color);
+        margin-bottom: 0;
+    }
+    
+    /* Cardurile produselor - efect de hover mai pronunțat și animație */
     .product-card {
-        transition: transform 0.3s, box-shadow 0.3s;
-        border-radius: 8px;
+        transition: transform 0.4s, box-shadow 0.4s;
+        border-radius: 10px;
         overflow: hidden;
-        border: 1px solid rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        opacity: 0;
+        animation: fadeInUp 0.8s forwards;
     }
     
     .product-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        transform: translateY(-10px) scale(1.03);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
     }
     
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Imaginile produselor - zoom subtil la hover */
+    .product-img {
+        height: 180px;
+        object-fit: cover;
+        transition: transform 0.4s;
+    }
+    
+    .product-card:hover .product-img {
+        transform: scale(1.05);
+    }
+    
+    /* Secțiunea categoriei - spațiere și margini pentru un layout aerisit */
     .category-section {
-        padding-bottom: 15px;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        padding-bottom: 30px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+        margin-bottom: 30px;
     }
     
     .category-section:last-child {
         border-bottom: none;
     }
     
+    /* Placeholder pentru imagini - efect de schimbare a culorii la hover */
     .product-image-placeholder {
-        border-radius: 6px;
+        height: 180px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f8f9fa;
+        transition: background-color 0.3s;
+    }
+    
+    .product-image-placeholder:hover {
+        background-color: #e9ecef;
+    }
+    
+    /* Butonul de adăugare în coș - rotunjit și cu efect de mărire la hover */
+    .add-to-cart-btn {
+        border-radius: 25px;
+        transition: background-color 0.3s, transform 0.3s;
+    }
+    
+    .add-to-cart-btn:hover {
+        background-color: var(--secondary-color);
+        transform: scale(1.05);
+    }
+    
+    /* Link-ul de specificații - efect de tranziție la hover */
+    .view-specs-link {
+        transition: color 0.3s;
+    }
+    
+    .view-specs-link:hover {
+        color: var(--primary-color);
+    }
+    
+    /* Tipografie modernă pentru titluri și paragrafe */
+    h1, h2, h5 {
+        font-family: 'Helvetica Neue', sans-serif;
+    }
+    
+    p {
+        font-size: 1.1rem;
+        line-height: 1.7;
     }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('search-input');
+    const suggestions = document.getElementById('suggestions');
+
+    searchInput.addEventListener('input', function() {
+        const query = searchInput.value;
+        if (query.length > 2) {
+            fetch(`/predictive_search/?q=${query}`)
+                .then(response => response.json())
+                .then(data => {
+                    suggestions.innerHTML = '';
+                    data.results.forEach(result => {
+                        const item = document.createElement('a');
+                        item.className = 'list-group-item list-group-item-action';
+                        item.href = `/product/${result.id}/`;
+                        item.textContent = result.name;
+                        suggestions.appendChild(item);
+                    });
+                });
+        } else {
+            suggestions.innerHTML = '';
+        }
+    });
+});
+</script>
+
 {% endblock %}
