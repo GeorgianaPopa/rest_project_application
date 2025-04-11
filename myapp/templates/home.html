@@ -18,6 +18,16 @@
     <div id="suggestions" class="list-group position-absolute"></div>
 </form>
 
+<div class="my-4 text-center">
+    <form method="GET" action="{% url 'search_specs' %}" class="form-inline justify-content-center">
+        <input type="text" name="q" class="form-control mr-2" style="max-width: 400px;" placeholder="Caută în specificații (ex: rezoluție 1920x1080)">
+        <button type="submit" class="btn btn-info">
+            <i class="fas fa-file-search"></i> Caută în specificații
+        </button>
+    </form>
+</div>
+
+
 {% if query %}
     <div class="alert alert-info">
         Rezultatele căutării pentru: <strong>{{ query }}</strong>
